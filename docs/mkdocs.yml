@@ -122,6 +122,7 @@ nav:
       - Video Generation: usage/video.md
       - Text-to-Speech: usage/tts.md
       - Speech-to-Text: usage/stt.md
+      - Resemble AI: usage/resemble.md
       - BYOK Support: usage/byok.md
       - Response Format: usage/responses.md
       - Usage Tracking: usage/tracking.md

@@ -48,9 +48,10 @@ from .exceptions import (
     InsufficientCreditsError,
     ValidationError,
     APIError,
+    ResembleBusinessPlanError,
 )
 
-__version__ = "0.1.43"
+__version__ = "0.2.0"
 __all__ = [
     "Client",
     "IndoxHub",
@@ -67,4 +68,5 @@ __all__ = [
     "InsufficientCreditsError",
     "ValidationError",
     "APIError",
+    "ResembleBusinessPlanError",
 ]

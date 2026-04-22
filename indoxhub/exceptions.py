@@ -84,3 +84,14 @@ class APIError(IndoxHubError):
     """Raised when the API returns an error."""
 
     pass
+
+
+class ResembleBusinessPlanError(IndoxHubError):
+    """Raised when a Resemble capability requires a Business plan subscription
+    that is not active on the connected IndoxHub deployment.
+
+    The server returns HTTP 503 for these capabilities (voice cloning, voice
+    design) when RESEMBLE_BUSINESS_PLAN_ACTIVE is false.
+    """
+
+    pass

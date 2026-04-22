@@ -171,6 +171,22 @@ class Client:
         # Authenticate and get JWT tokens
         self._authenticate()
 
+        # Resemble namespace — lazy-init on first access
+        self._resemble = None
+
+    @property
+    def resemble(self):
+        """Resemble AI namespace. Access TTS, voices, STT, safety, and more.
+
+        Example:
+            client.resemble.tts.synthesize(voice_uuid="...", text="Hi")
+        """
+        if self._resemble is None:
+            from .resemble import ResembleAPI
+
+            self._resemble = ResembleAPI(self)
+        return self._resemble
+
     def _authenticate(self):
         """
         Authenticate with the server and get JWT tokens.
@@ -417,7 +433,12 @@ class Client:
                 raise ValidationError(f"Request validation failed: {error_message}")
             elif status_code == 503:
                 # Service Unavailable - model might be temporarily unavailable
-                if "model" in error_message.lower():
+                if "business-plan" in error_message.lower():
+                    # Resemble capability gated by RESEMBLE_BUSINESS_PLAN_ACTIVE flag
+                    from .exceptions import ResembleBusinessPlanError
+
+                    raise ResembleBusinessPlanError(error_message)
+                elif "model" in error_message.lower():
                     raise ModelNotAvailableError(
                         f"Model temporarily unavailable: {error_message}"
                     )

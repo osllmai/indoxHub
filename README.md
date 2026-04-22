@@ -6,6 +6,7 @@ A unified client for various AI providers, including OpenAI, anthropic, Google, 
 
 - **Unified API**: Access multiple AI providers through a single API
 - **Simple Interface**: Easy-to-use methods for chat, completion, embeddings, image generation, and text-to-speech
+- **Resemble AI**: Full TTS, STT, deepfake detection, watermarking, voice cloning, and agents via `client.resemble.*`
 - **Error Handling**: Standardized error handling across providers
 - **Authentication**: Secure cookie-based authentication
 - **BYOK Support**: Bring Your Own Key support for using your own provider API keys
@@ -106,6 +107,27 @@ if "b64_json" in response["data"][0]:
     b64_data = response["data"][0]["b64_json"]
     # Use the base64 data (e.g., to display in HTML or save to file)
 ```
+
+### Resemble AI
+
+A dedicated namespace at `client.resemble.*` covers Resemble's full surface — TTS, STT, deepfake detection, watermarking, voice cloning, agents, and more.
+
+```python
+# List voices (free)
+voices = client.resemble.tts.list_voices(page=1, page_size=10)
+
+# Synthesize speech
+result = client.resemble.tts.synthesize(
+    voice_uuid=voices["items"][0]["uuid"],
+    text="Hello from IndoxHub.",
+    output_format="mp3",
+)
+import base64
+audio_bytes = base64.b64decode(result["audio_content"])
+print(f"{result['audio_duration']:.2f}s, billed ${result['billing']['charged']}")
+```
+
+See `docs/usage/resemble.md` for the full method index, error handling, and per-capability examples.
 
 ### BYOK (Bring Your Own Key) Support
 
