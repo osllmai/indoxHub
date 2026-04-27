@@ -14,6 +14,13 @@ class _Watermark(_ResembleResource):
         return self._request("POST", "/apply", data)
 
     def get_apply(self, job_id: str) -> Dict[str, Any]:
+        """Retrieve watermark-apply result.
+
+        Once the job is completed, the response is augmented with
+        ``audio_url`` (R2 presigned URL, 7-day retention), ``expires_at``,
+        and ``resemble_url`` (upstream fallback). Mirroring is lazy +
+        idempotent.
+        """
         return self._request("GET", f"/apply/{job_id}")
 
     def detect(self, audio_url: str, **fields: Any) -> Dict[str, Any]:

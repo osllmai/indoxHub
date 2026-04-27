@@ -2,8 +2,27 @@
 
 All notable changes to IndoxHub Python Client will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [0.2.1] - 2026-04-27
+
+### Added
+
+- **R2 mirror surface** — Resemble responses now expose `audio_url` (presigned
+  Cloudflare R2 URL) and `expires_at` (ISO 8601 timestamp). Affected methods:
+  `tts.synthesize`, `audio_jobs.get_enhance` / `get_edit`, `watermark.get_apply`.
+  Mirroring is server-side, lazy + idempotent — first GET after job completion
+  writes to R2, subsequent GETs return the same R2 URL.
+- **`uploads.create(file_path, purpose=None)`** — new `purpose` parameter
+  controls retention. Pass `purpose="voice_clone"` to land voice-clone source
+  recordings under `voice-recordings/` with **PERMANENT** retention. Other
+  values: `stt_input` (30d), `watermark_input` (7d), `audio_job_input` (7d).
+  Default (no purpose): `uploads/` prefix, 30-day retention.
+- Docstring updates noting the new fields and per-asset retention model.
+
+### Changed
+
+- Maintainer email: `support@indoxhub.com`.
 
 ## [0.2.0] - 2026-04-22
 

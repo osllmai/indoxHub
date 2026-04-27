@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indoxhub"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
-    {name = "indoxHub Team", email = "ashkan.eskandari.dev@gmail.com"},
+    {name = "indoxHub Team", email = "support@indoxhub.com"},
 ]
 description = "A unified client for various AI providers"
 readme = "README.md"

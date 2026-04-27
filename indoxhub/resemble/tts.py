@@ -21,11 +21,16 @@ class _TTS(_ResembleResource):
         """Synchronous text-to-speech. Bills audio_seconds.
 
         Returns the server payload verbatim, including:
-          - audio_content (base64)
-          - audio_duration (float, seconds)
-          - billing {unit, quantity, charged}
-          - request_id
-          - raw_response (original Resemble body)
+          - ``audio_url`` (str): presigned Cloudflare R2 URL to the
+            generated audio. Valid for 1 hour. Preferred over
+            ``audio_content`` for large clips.
+          - ``expires_at`` (ISO 8601 str): when the R2 object will be
+            auto-deleted (default 7 days from generation).
+          - ``audio_content`` (base64 str): kept for backward compat.
+          - ``audio_duration`` (float, seconds)
+          - ``billing`` {unit, quantity, charged}
+          - ``request_id``
+          - ``raw_response`` (original Resemble body)
         """
         data: Dict[str, Any] = {
             "voice_uuid": voice_uuid,

@@ -20,7 +20,17 @@ class _AudioJobs(_ResembleResource):
         return self._request("POST", "/enhance", data)
 
     def get_enhance(self, job_id: str) -> Dict[str, Any]:
-        """Retrieve enhancement result."""
+        """Retrieve enhancement result.
+
+        Once the job is completed, the response is augmented with:
+          - ``audio_url``: presigned Cloudflare R2 URL to the enhanced audio
+            (7-day retention).
+          - ``expires_at``: ISO 8601 timestamp when the R2 object expires.
+          - ``resemble_url``: original upstream URL (kept as fallback).
+
+        Mirroring is lazy + idempotent — first GET after completion writes
+        to R2, subsequent GETs return the same R2 URL.
+        """
         return self._request("GET", f"/enhance/{job_id}")
 
     def edit(self, audio_url: str, **fields: Any) -> Dict[str, Any]:
@@ -29,5 +39,11 @@ class _AudioJobs(_ResembleResource):
         return self._request("POST", "/edit", data)
 
     def get_edit(self, job_id: str) -> Dict[str, Any]:
-        """Retrieve edit result."""
+        """Retrieve edit result.
+
+        Once the job is completed, the response is augmented with
+        ``audio_url`` (R2 presigned URL, 7-day retention), ``expires_at``,
+        and ``resemble_url`` (upstream fallback). See ``get_enhance`` for
+        details — same mirror behavior.
+        """
         return self._request("GET", f"/edit/{job_id}")

@@ -127,7 +127,7 @@ audio_bytes = base64.b64decode(result["audio_content"])
 print(f"{result['audio_duration']:.2f}s, billed ${result['billing']['charged']}")
 ```
 
-See `docs/usage/resemble.md` for the full method index, error handling, and per-capability examples.
+See the [IndoxHub docs](https://indoxhub.com/docs/api-reference/resemble/) for the full Resemble API reference, error handling, and per-capability examples.
 
 ### BYOK (Bring Your Own Key) Support
 
