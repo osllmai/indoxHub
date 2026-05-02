@@ -4,7 +4,40 @@ All notable changes to IndoxHub Python Client will be documented in this file.
 
 
 
-## [0.2.1] - 2026-05-02
+## [0.2.2] - 2026-05-02
+
+### Notes
+
+- **Republish of the v0.2.1 cleanup work.** v0.2.1 was already on PyPI
+  (uploaded manually via `twine upload` on 2026-04-27) before this
+  cleanup landed in git, so the cleaned-up artifacts had to ship as a
+  fresh patch rather than overwriting v0.2.1. No public API differences
+  vs v0.2.1; only metadata + type hints + tests are touched.
+
+### Changed
+
+- Synced `__version__` in `indoxhub/__init__.py` with `pyproject.toml`
+  (was drifted at `0.2.0`).
+- `pyproject.toml` URLs corrected to point at `osllmai/indoxHub_client`
+  (Homepage / Repository / Issues).
+
+### Fixed
+
+- Type hints: annotated every `data` / `request_params` / `filtered_kwargs`
+  dict in `client.py` as `Dict[str, Any]` so dynamic kwarg splat into
+  `requests.Session.request(**...)` no longer triggers 28 mypy `[arg-type]`
+  errors. Replaced the `Optional[callable]` typo with
+  `Optional[Callable[[Dict[str, Any]], None]]` on `wait_for_video_job`.
+- Replaced 3 bare `except:` clauses in `client.py` with
+  `except (ValueError, json.JSONDecodeError):` for safer error handling.
+- Removed unused imports (`datetime`, `timedelta`, `ProviderError`).
+- Test suite: `tests/unit/test_client.py::TestClient` is now green.
+  Added an autouse `_stub_authenticate` fixture so `Client.__init__` no
+  longer attempts a live auth network call during unit tests, and fixed
+  the call-arg position assertion in `test_speech_to_text_with_optional_params`.
+  Suite is now 98 passed, 4 skipped (was 4 failed + 9 errored).
+
+## [0.2.1] - 2026-04-27
 
 ### Added
 
@@ -23,25 +56,6 @@ All notable changes to IndoxHub Python Client will be documented in this file.
 ### Changed
 
 - Maintainer email: `support@indoxhub.com`.
-- Synced `__version__` in `indoxhub/__init__.py` with `pyproject.toml` (was drifted at `0.2.0`).
-- `pyproject.toml` URLs corrected to point at `osllmai/indoxHub_client`
-  (Homepage / Repository / Issues).
-
-### Fixed
-
-- Type hints: annotated all `data` / `request_params` / `filtered_kwargs`
-  dicts in `client.py` as `Dict[str, Any]` so dynamic kwarg splat into
-  `requests.Session.request(**...)` no longer triggers 28 mypy `[arg-type]`
-  errors. Replaced the `Optional[callable]` typo with
-  `Optional[Callable[[Dict[str, Any]], None]]` on `wait_for_video_job`.
-- Replaced 3 bare `except:` clauses in `client.py` with
-  `except (ValueError, json.JSONDecodeError):` for safer error handling.
-- Removed unused imports (`datetime`, `timedelta`, `ProviderError`).
-- Test suite: `tests/unit/test_client.py::TestClient` is now green.
-  Added an autouse `_stub_authenticate` fixture so `Client.__init__` no
-  longer attempts a live auth network call during unit tests, and fixed
-  the call-arg position assertion in `test_speech_to_text_with_optional_params`.
-  Suite is now 98 passed, 4 skipped (was 4 failed + 9 errored).
 
 ## [0.2.0] - 2026-04-22
 

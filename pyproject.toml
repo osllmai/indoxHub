@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indoxhub"
-version = "0.2.1"
+version = "0.2.2"
 authors = [
     {name = "indoxHub Team", email = "support@indoxhub.com"},
 ]
