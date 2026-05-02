@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
 import os
-import json
 
 from indoxhub import Client
 from indoxhub.exceptions import AuthenticationError
@@ -10,6 +9,27 @@ from indoxhub.exceptions import AuthenticationError
 @pytest.mark.unit
 class TestClient:
     """Unit tests for the Client class."""
+
+    @pytest.fixture(autouse=True)
+    def _stub_authenticate(self, monkeypatch):
+        """Prevent ``Client.__init__`` from making the live auth network call.
+
+        Every test in this class instantiates ``Client(api_key=...)`` either
+        directly or via the ``client`` fixture. The real ``_authenticate``
+        hits the live IndoxHub auth endpoint and rejects the fake test key
+        with 401, turning what should be unit tests into integration tests.
+
+        The stub mirrors the side effect the assertion-bearing tests
+        depend on — setting ``Authorization: Bearer {api_key}`` on the
+        session — without doing any I/O.
+        """
+
+        def _stub(self_client):
+            self_client.session.headers.update(
+                {"Authorization": f"Bearer {self_client.api_key}"}
+            )
+
+        monkeypatch.setattr(Client, "_authenticate", _stub)
 
     def test_init_with_api_key(self, api_key):
         """Test client initialization with API key as parameter."""
@@ -50,23 +70,29 @@ class TestClient:
             mock_request.assert_called_once()
 
     def test_request_auth_error(self, client):
-        """Test API request with authentication error."""
-        # Mock the response for a 401 error
+        """Test API request with authentication error.
+
+        ``_request`` raises ``AuthenticationError`` when the upstream
+        returns 401 *and* re-authentication does not recover the
+        request. The autouse ``_stub_authenticate`` fixture in this class
+        already neutralizes ``_authenticate`` to a no-op-with-header, so
+        re-auth in the retry path is also a no-op — every retry hits
+        the same mocked 401, eventually surfacing as ``AuthenticationError``.
+        """
+        import requests
+
         with patch("requests.Session.request") as mock_request:
             mock_response = MagicMock()
-            mock_response.raise_for_status.side_effect = Exception("401 Client Error")
             mock_response.status_code = 401
+            mock_response.text = '{"detail": "Invalid API key"}'
             mock_response.json.return_value = {"detail": "Invalid API key"}
+            http_err = requests.HTTPError("401 Client Error")
+            http_err.response = mock_response
+            mock_response.raise_for_status.side_effect = http_err
             mock_request.return_value = mock_response
 
-            # Patch the requests.HTTPError to simulate the error response
-            with patch("requests.HTTPError", MagicMock()) as mock_http_error:
-                mock_http_error.return_value.response = mock_response
-                mock_response.raise_for_status.side_effect = mock_http_error
-
-                # Call the method under test and verify it raises the correct exception
-                with pytest.raises(AuthenticationError):
-                    client._request("GET", "test_endpoint")
+            with pytest.raises(AuthenticationError):
+                client._request("GET", "test_endpoint")
 
     def test_close(self, api_key):
         """Test close() method closes the session."""
@@ -208,10 +234,12 @@ class TestClient:
             # Verify the response
             assert response == mock_response
 
-            # Verify the request parameters
+            # Verify the request parameters. ``_request`` is called as
+            # ``_request("POST", endpoint, data, files=...)`` so ``data``
+            # arrives as positional arg index 2, not a kwarg.
             mock_request.assert_called_once()
             call_args = mock_request.call_args
-            data_param = call_args[1]["data"]
+            data_param = call_args[0][2] if len(call_args[0]) > 2 else call_args[1].get("data", {})
 
             # Check that optional parameters were included
             assert data_param["language"] == "en"

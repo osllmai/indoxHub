@@ -29,9 +29,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/osllmai/indoxHub"
-Repository = "https://github.com/osllmai/indoxHub"
-Issues = "https://github.com/osllmai/indoxHub/issues"
+Homepage = "https://github.com/osllmai/indoxHub_client"
+Repository = "https://github.com/osllmai/indoxHub_client"
+Issues = "https://github.com/osllmai/indoxHub_client/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

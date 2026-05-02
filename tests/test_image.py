@@ -4,7 +4,6 @@ Test the image generation functionality of the indoxhub client.
 
 import unittest
 from unittest.mock import patch, MagicMock
-import os
 from indoxhub import Client
 
 
@@ -67,7 +66,6 @@ class TestImageGeneration(unittest.TestCase):
 
         # Verify the client made the request with the correct parameters
         self.client._request.assert_called_once()
-        call_args = self.client._request.call_args[0]
 
         # Verify the response format
         self.assertEqual(response["success"], True)

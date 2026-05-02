@@ -1,9 +1,6 @@
 import os
 import pytest
-from unittest.mock import patch
 
-from indoxhub import Client
-from indoxhub.exceptions import AuthenticationError
 
 
 @pytest.mark.integration
@@ -46,7 +43,7 @@ class TestAPIConnection:
 
         try:
             # This will likely fail due to invalid audio format, but should reach the endpoint
-            response = live_client.speech_to_text(fake_audio_data)
+            live_client.speech_to_text(fake_audio_data)
         except Exception as e:
             # We expect this to fail with audio format or validation error, not authentication
             error_msg = str(e).lower()

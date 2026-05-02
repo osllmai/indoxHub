@@ -87,8 +87,7 @@ BYOK (Bring Your Own Key) Support:
 
 import os
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Callable, Optional, Union
 import requests
 import json
 
@@ -100,7 +99,6 @@ from .exceptions import (
     ModelNotAvailableError,
     InvalidParametersError,
     RateLimitError,
-    ProviderError,
     RequestError,
     InsufficientCreditsError,
     ValidationError,
@@ -229,7 +227,7 @@ class Client:
                 error_data = {}
                 try:
                     error_data = response.json()
-                except:
+                except (ValueError, json.JSONDecodeError):
                     error_data = {"detail": response.text}
 
                 raise AuthenticationError(
@@ -243,7 +241,7 @@ class Client:
                     # Store token in the session object for later use
                     self.access_token = response_data["access_token"]
                     logger.debug("Retrieved access token from response body")
-            except:
+            except (ValueError, json.JSONDecodeError):
                 # If we couldn't parse JSON, that's fine - we'll rely on cookies
                 logger.debug("No token found in response body, will rely on cookies")
 
@@ -345,7 +343,7 @@ class Client:
 
         try:
             # Prepare request parameters
-            request_params = {
+            request_params: Dict[str, Any] = {
                 "method": method,
                 "url": url,
                 "headers": headers,
@@ -559,12 +557,12 @@ class Client:
         formatted_model = self._format_model_string(model)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
-        data = {
+        data: Dict[str, Any] = {
             "messages": messages,
             "model": formatted_model,
             "temperature": temperature,
@@ -609,12 +607,12 @@ class Client:
         formatted_model = self._format_model_string(model)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
-        data = {
+        data: Dict[str, Any] = {
             "prompt": prompt,
             "model": formatted_model,
             "temperature": temperature,
@@ -653,12 +651,12 @@ class Client:
         formatted_model = self._format_model_string(model)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
-        data = {
+        data: Dict[str, Any] = {
             "text": text if isinstance(text, list) else [text],
             "model": formatted_model,
             "byok_api_key": byok_api_key,
@@ -755,13 +753,13 @@ class Client:
             provider, model_name = model.split("/", 1)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
         # Create the base request data with only the required parameters
-        data = {
+        data: Dict[str, Any] = {
             "prompt": prompt,
             "model": formatted_model,
             "byok_api_key": byok_api_key,
@@ -1006,13 +1004,13 @@ class Client:
         formatted_model = self._format_model_string(model)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
         # Create the base request data with required parameters
-        data = {
+        data: Dict[str, Any] = {
             "prompt": prompt,
             "model": formatted_model,
         }
@@ -1139,7 +1137,7 @@ class Client:
         job_id: str,
         check_interval: int = 15,
         max_wait_time: int = 600,
-        callback: Optional[callable] = None,
+        callback: Optional[Callable[[Dict[str, Any]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Wait for a video generation job to complete.
@@ -1265,13 +1263,13 @@ class Client:
         formatted_model = self._format_model_string(model)
 
         # Filter out problematic parameters
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in ["return_generator"]:  # List of parameters to exclude
                 filtered_kwargs[key] = value
 
         # Create the base request data with required parameters
-        data = {
+        data: Dict[str, Any] = {
             "input": input,
             "model": formatted_model,
         }
@@ -1384,7 +1382,7 @@ class Client:
         files = {"file": (filename, file_data, "audio/*")}
 
         # Create the form data with required parameters
-        data = {
+        data: Dict[str, Any] = {
             "model": formatted_model,
         }
 
@@ -1406,7 +1404,7 @@ class Client:
             data["byok_api_key"] = byok_api_key
 
         # Filter out problematic parameters from kwargs
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in [
                 "filename",
@@ -1490,7 +1488,7 @@ class Client:
         files = {"file": (filename, file_data, "audio/*")}
 
         # Create the form data with required parameters
-        data = {
+        data: Dict[str, Any] = {
             "model": formatted_model,
         }
 
@@ -1507,7 +1505,7 @@ class Client:
             data["byok_api_key"] = byok_api_key
 
         # Filter out problematic parameters from kwargs
-        filtered_kwargs = {}
+        filtered_kwargs: Dict[str, Any] = {}
         for key, value in kwargs.items():
             if key not in [
                 "filename",
@@ -1634,7 +1632,7 @@ class Client:
                     "application/json"
                 ):
                     server_info = response.json()
-            except:
+            except (ValueError, json.JSONDecodeError):
                 pass
 
             return {
